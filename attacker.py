@@ -2,6 +2,13 @@ from pwn import *
 import threading
 import datetime
 import inspect
+import fcntl
+
+def acquire_lock(file):
+    fcntl.flock(file, fcntl.LOCK_EX)
+
+def release_lock(file):
+    fcntl.flock(file, fcntl.LOCK_UN)
 
 # Funzione che restituisce il nome della funzione in cui viene eseguito
 def get_function_name():
@@ -16,8 +23,10 @@ def error_handler(error):
 
 # Funzione che scrive la flag sul file txt dopo che la trova
 def scrivi_flag(flag):
-    flag_file = open("flags.txt", "a")
+    flag_file = open("flags.txt", "a+")
+    acquire_lock(flag_file)
     flag_file.write(f"{flag}\n")
+    release_lock(flag_file)
 
 # Definizione delle funzioni exploit
 def exploit1(chiave, valore):
